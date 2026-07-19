@@ -384,12 +384,11 @@
 <footer>
   Format reverse-engineered from SPICA (<code>GF1Motion.cs</code>, <code>GF1MotBone.cs</code>, <code>GF1MotionPack.cs</code>, <code>GFPackage.cs</code>)
   and verified by byte-exact round-trips with <code>anim.py</code> — export → patch → export reproduces identical JSON, with only
-  low-order float bits differing from 7-decimal export rounding. Companion prose spec: <code>ANIM_FORMAT.md</code>.
-  Pipeline: GARC <code>a/0/0/8</code> → LZ11 decompress → edit → LZ11 compress → repack → Luma3DS LayeredFS.
+  low-order float bits differing from 7-decimal export rounding. 
   <div class="byline">
-    Reverse-engineering, hardware testing, and direction by <b>Ben Kudarauskas</b> ·
+    Reverse-engineering, and hardware testing by <b>Ben Kudarauskas</b> ·
     <a href="https://github.com/drizz1le">github.com/drizz1le</a><br>
-    Tooling and documentation built with AI assistance (Claude) and verified against real game files.
+    Documentation built with AI assistance (Claude). Verified against real game files.
     Byte excerpts shown remain © Nintendo / Game Freak / Creatures Inc., reproduced solely for
     interoperability documentation — no game files are distributed.
   </div>
