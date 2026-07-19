@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PB Animation Byte Atlas</title>
+<title>GF1Motion Byte Atlas</title>
 </head>
 <body>
 <style>
@@ -216,14 +216,14 @@
 
 <header>
   <div class="eyebrow">Pokémon X/Y · ORAS &nbsp;//&nbsp; GF1Motion skeletal animation</div>
-  <h1>.PB Byte Atlas <span class="dim">— every region of an animation file, highlighted</span></h1>
+  <h1>GF1Motion Byte Atlas <span class="dim">— every region of an animation file, highlighted</span></h1>
   <div class="filechips">
     <span class="chip">file <b>dec_0008.PB</b></span>
     <span class="chip">pokemon <b>Bulbasaur</b></span>
     <span class="chip">size <b>110,016 B</b></span>
     <span class="chip">source <b>GARC a/0/0/8</b></span>
   </div>
-  <p class="lede">Every byte shown below is <b>real data</b> read from the file above at the stated offsets — nothing is mocked up.
+  <p class="lede">Every byte shown below is <b>real data</b> read from the file above at the stated offsets.
   The format nests four layers: a <b>GFPackage</b> container → a <b>GF1MotionPack</b> → a <b>GF1MotBone</b> skeleton → <b>GF1Motion</b> clips.
   Hover any legend row or any colored byte to light up its field. All integers are little-endian.</p>
 </header>
@@ -245,10 +245,11 @@
 
 <!-- ══════════════ LAYER 1 ══════════════ -->
 <section>
-  <div class="sechead"><span class="lnum">LAYER 1</span><h2>GFPackage container</h2><span class="at">abs 0x0000</span></div>
+  <div class="sechead"><span class="lnum">LAYER 0</span><h2>GFPackage container</h2><span class="at">abs 0x0000</span></div>
   <p class="note">Two-byte magic, entry count, then <code>count + 1</code> absolute offsets — the extra final offset is the file size,
   so entry <i>i</i> always spans <code>offset[i] … offset[i+1]</code> and zero-length entries are legal.
-  Entry 0 is the motion pack; entry 1 is bounding-box data; entries 2+ are BCH material/visibility animations.</p>
+  Entry 0 is the motion pack; entry 1 is bounding-box data; entries 2+ are BCH material/visibility animations.
+  We are going to focus on the header, and entries 0–1.</p>
   <div class="duo">
     <div class="hexcard">
       <div class="hexhead"><span>offset</span><span style="margin-left:96px">00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F</span></div>
@@ -260,9 +261,9 @@
 
 <!-- ══════════════ LAYER 2 ══════════════ -->
 <section>
-  <div class="sechead"><span class="lnum">LAYER 2</span><h2>GF1MotionPack header</h2><span class="at">pack+0x000 · abs 0x130</span></div>
-  <p class="note">A slot count, then one offset per slot — <b>relative to the pack start</b>. Slot 0 is the skeleton; slots 1–28 are
-  animation clips keyed to fixed roles (idle, attack, faint …). An offset of <code>0</code> means the slot is empty.
+  <div class="sechead"><span class="lnum">LAYER 1.1</span><h2>GF1MotionPack header</h2><span class="at">pack+0x000 · abs 0x130</span></div>
+  <p class="note">A slot count, then one offset per slot relative to the pack start. Slot 0 is the skeleton, slots 1–28 are
+  animation clips keyed to fixed roles (idle, attack, faint, …). An offset of <code>0</code> means the slot is empty.
   Immediately after the table sits the pack's total size, which must be recomputed whenever a clip changes length.</p>
   <div class="duo">
     <div class="hexcard">
@@ -275,10 +276,10 @@
 
 <!-- ══════════════ LAYER 3 ══════════════ -->
 <section>
-  <div class="sechead"><span class="lnum">LAYER 3</span><h2>GF1MotBone skeleton</h2><span class="at">pack+0x07C</span></div>
+  <div class="sechead"><span class="lnum">LAYER 1.2</span><h2>GF1MotBone skeleton</h2><span class="at">pack+0x07C</span></div>
   <p class="note">Bone count, per-bone records (parent / flags / child-count), null-terminated names, 4-byte alignment padding,
   then a 28-byte rest pose per bone (translation + quaternion). Bone 0 is an implicit <code>Origin</code> root with no record or name —
-  only a rest pose. Clips never store bone names: channels bind to bones <b>by index</b>, so bone order is sacred.</p>
+  only a rest pose. Clips never store bone names. Instead, channels bind to bones <b>by index</b>, so bone order is very important.</p>
   <div class="duo">
     <div class="hexcard">
       <div class="hexhead"><span>pack+</span><span style="margin-left:110px">00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F</span></div>
@@ -290,10 +291,10 @@
 
 <!-- ══════════════ LAYER 4 ══════════════ -->
 <section>
-  <div class="sechead"><span class="lnum">LAYER 4</span><h2>GF1Motion clip — the interesting part</h2><span class="at">pack+0x91C · clip 1 · idle</span></div>
+  <div class="sechead"><span class="lnum">LAYER 2</span><h2>GF1Motion clip</h2><span class="at">pack+0x91C · clip 1 · idle</span></div>
   <p class="note">Each clip animates 9 channels per bone (T<sub>XYZ</sub>, R<sub>XYZ</sub>, S<sub>XYZ</sub>; rotations are Euler XYZ in radians)
   and packs them in four sections: <b>header → octal stream → keyframe index tables → float data</b>.
-  Clip 1 here: <code>42</code> frames, 42 animated bones, 3,656 bytes total.</p>
+  Clip 1 (as shown) has <code>42</code> frames, <code>42</code> animated bones, and <code>3,656</code> bytes total.</p>
 
   <div class="anatomy map">
     <p class="maplabel">Clip 1 anatomy · pack+0x91C … 0x1764 · 3,656 B</p>
@@ -379,32 +380,6 @@
   </div>
 </section>
 
-<!-- ══════════════ PROCESS ══════════════ -->
-<section>
-  <div class="sechead"><span class="lnum">PROCESS</span><h2>From compressed archive to custom animation</h2><span class="at">how this was actually done</span></div>
-  <p class="note">The atlas above is the tidy end product. Getting there was not tidy — this is the path,
-  including the steps that existed purely to find out whether anything worked at all.</p>
-  <!-- PERSONALIZE: these milestones are accurate to the project, but add your own detail —
-       what broke, what surprised you, how long each stage really took. -->
-  <ol class="steps">
-    <li><span><b>Extract the data.</b> Pulled GARC <code>a/0/0/8</code> out of the X/Y ROM filesystem and
-      LZ11-decompressed it into per-Pokémon <code>.pb</code>/<code>.pk</code> files — opaque binary, no public spec.</span></li>
-    <li><span><b>Study prior art.</b> SPICA (an open-source 3DS model viewer) could <i>render</i> these
-      animations, so its parser source became the Rosetta stone: four C# files describing what to read, but not why.</span></li>
-    <li><span><b>Build the tool.</b> <code>anim.py</code> — a zero-dependency Python decoder <i>and</i> encoder.
-      Writing the encoder is what forces real understanding: a renderer can skip fields it doesn't care about; a
-      round-tripper can't.</span></li>
-    <li><span><b>Prove the pipeline before trusting it.</b> The <code>tpose</code> test: patch in a clip where every
-      bone is at identity. If the Pokémon stands in a rigid T-pose in game, the whole chain — encode, compress,
-      repack, LayeredFS — is verified in one glance.</span></li>
-    <li><span><b>Verify losslessness.</b> Export → patch → export reproduces identical JSON on both modified and
-      pristine game files; the rebuilt binary matches the original except low-order float bits from JSON rounding.</span></li>
-    <li><span><b>Ship a real mod.</b> Custom Delphox animation work authored in Blender and deployed to console
-      hardware via Luma3DS LayeredFS — the point of all of the above.</span></li>
-    <li><span><b>Document it.</b> The prose spec (<code>ANIM_FORMAT.md</code>), an annotated JSON template, and
-      this atlas — so the next person starts from a map instead of a hex dump.</span></li>
-  </ol>
-</section>
 
 <footer>
   Format reverse-engineered from SPICA (<code>GF1Motion.cs</code>, <code>GF1MotBone.cs</code>, <code>GF1MotionPack.cs</code>, <code>GFPackage.cs</code>)
@@ -412,9 +387,8 @@
   low-order float bits differing from 7-decimal export rounding. Companion prose spec: <code>ANIM_FORMAT.md</code>.
   Pipeline: GARC <code>a/0/0/8</code> → LZ11 decompress → edit → LZ11 compress → repack → Luma3DS LayeredFS.
   <div class="byline">
-    <!-- PERSONALIZE: swap in your GitHub handle/URL. -->
     Reverse-engineering, hardware testing, and direction by <b>Ben Kudarauskas</b> ·
-    <a href="https://github.com/YOUR-USERNAME">github.com/YOUR-USERNAME</a><br>
+    <a href="https://github.com/drizz1le">github.com/drizz1le</a><br>
     Tooling and documentation built with AI assistance (Claude) and verified against real game files.
     Byte excerpts shown remain © Nintendo / Game Freak / Creatures Inc., reproduced solely for
     interoperability documentation — no game files are distributed.
