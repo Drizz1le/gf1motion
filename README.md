@@ -20,9 +20,7 @@
 
 ---
 
-<p align="center">
-  # Tools coming soon
-</p>
+# Tools coming soon
 
 <a id="how"></a>
 ## How
