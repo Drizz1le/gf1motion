@@ -1,0 +1,707 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PB Animation Byte Atlas</title>
+</head>
+<body>
+<style>
+  :root{
+    --bg:#eef1f4; --panel:#ffffff; --panel2:#f5f7f9; --line:#d8dfe6; --line2:#e6ebf0;
+    --ink:#1c2733; --mut:#5c6b7a; --faint:#93a1ae;
+    --blue:#2f7fc4; --violet:#7a5fd0; --green:#25915f; --amber:#b07d15;
+    --coral:#cc4a66; --teal:#178f9b; --slate:#75828f;
+    --mix:#ffffff;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0e1216; --panel:#151b22; --panel2:#111820; --line:#26303b; --line2:#1d2731;
+      --ink:#d9e1e9; --mut:#8a96a2; --faint:#5d6a76;
+      --blue:#6cb1ea; --violet:#a68df2; --green:#52c98d; --amber:#e0a63f;
+      --coral:#ef7d92; --teal:#45c3cf; --slate:#8593a0;
+      --mix:#0e1216;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0e1216; --panel:#151b22; --panel2:#111820; --line:#26303b; --line2:#1d2731;
+    --ink:#d9e1e9; --mut:#8a96a2; --faint:#5d6a76;
+    --blue:#6cb1ea; --violet:#a68df2; --green:#52c98d; --amber:#e0a63f;
+    --coral:#ef7d92; --teal:#45c3cf; --slate:#8593a0;
+    --mix:#0e1216;
+  }
+  :root[data-theme="light"]{
+    --bg:#eef1f4; --panel:#ffffff; --panel2:#f5f7f9; --line:#d8dfe6; --line2:#e6ebf0;
+    --ink:#1c2733; --mut:#5c6b7a; --faint:#93a1ae;
+    --blue:#2f7fc4; --violet:#7a5fd0; --green:#25915f; --amber:#b07d15;
+    --coral:#cc4a66; --teal:#178f9b; --slate:#75828f;
+    --mix:#ffffff;
+  }
+
+  *{box-sizing:border-box}
+  html{background:var(--bg)}
+  body{
+    margin:0; padding:0; background:var(--bg); color:var(--ink);
+    font:15px/1.62 "Segoe UI", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono, code, .hex, .gutter, .ascii, h1, h2, h3, .chip, .lg-name, .lg-meta, .lane, .tag{
+    font-family:"Cascadia Code","Cascadia Mono",Consolas,ui-monospace,"SF Mono",Menlo,monospace;
+  }
+  .wrap{max-width:1080px; margin:0 auto; padding:44px 28px 80px}
+
+  /* ── header ── */
+  header{margin-bottom:34px}
+  .eyebrow{font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--mut);
+    font-family:Consolas,ui-monospace,monospace; margin-bottom:10px}
+  h1{font-size:30px; line-height:1.15; margin:0 0 12px; font-weight:600; letter-spacing:-.01em; text-wrap:balance}
+  h1 .dim{color:var(--mut); font-weight:400}
+  .filechips{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px}
+  .chip{font-size:12px; padding:4px 10px; border:1px solid var(--line); border-radius:3px;
+    background:var(--panel); color:var(--mut)}
+  .chip b{color:var(--ink); font-weight:600}
+  .lede{max-width:64ch; color:var(--mut); margin:14px 0 0}
+  .lede b{color:var(--ink); font-weight:600}
+
+  /* ── sections ── */
+  section{margin-top:52px}
+  .sechead{display:flex; align-items:baseline; gap:14px; border-bottom:1px solid var(--line);
+    padding-bottom:10px; margin-bottom:18px}
+  .lnum{font-size:11px; letter-spacing:.14em; color:var(--bg); background:var(--ink);
+    padding:3px 8px; border-radius:2px; font-family:Consolas,ui-monospace,monospace; white-space:nowrap}
+  h2{font-size:18px; margin:0; font-weight:600}
+  .at{margin-left:auto; font-size:12px; color:var(--faint); font-family:Consolas,ui-monospace,monospace; white-space:nowrap}
+  .note{color:var(--mut); max-width:70ch; margin:0 0 16px}
+  .note code{font-size:13px; background:var(--panel2); border:1px solid var(--line2); border-radius:3px; padding:1px 5px}
+
+  /* ── file map ── */
+  .map{border:1px solid var(--line); background:var(--panel); border-radius:4px; padding:18px 18px 14px}
+  .maplabel{font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint);
+    font-family:Consolas,ui-monospace,monospace; margin:0 0 8px}
+  .bar{display:flex; height:34px; border-radius:3px; overflow:hidden; border:1px solid var(--line)}
+  .seg{position:relative; min-width:7px; display:flex; align-items:center; justify-content:center; overflow:hidden}
+  .seg span{font-size:10.5px; font-family:Consolas,ui-monospace,monospace; white-space:nowrap;
+    color:var(--mix); mix-blend-mode:normal; font-weight:600; letter-spacing:.03em}
+  .connector{height:22px; position:relative; margin:0 0 0}
+  .baraux{margin-top:14px}
+  .maplegend{display:flex; flex-wrap:wrap; gap:6px 18px; margin-top:12px; font-size:12px; color:var(--mut)}
+  .maplegend i{display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:6px; vertical-align:-.5px}
+  .scale-note{font-size:11px; color:var(--faint); margin-top:8px}
+
+  /* ── hex panel + legend layout ── */
+  .duo{display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap}
+  .hexcard{flex:1 1 560px; min-width:0; border:1px solid var(--line); background:var(--panel); border-radius:4px}
+  .hexhead{display:flex; gap:14px; padding:8px 14px; border-bottom:1px solid var(--line2);
+    font-size:11px; color:var(--faint); font-family:Consolas,ui-monospace,monospace;
+    letter-spacing:.1em; text-transform:uppercase}
+  .hexwrap{overflow-x:auto; padding:12px 14px 14px}
+  .hexgrid{display:grid; grid-template-columns:auto 1fr auto; column-gap:18px; row-gap:2px;
+    font-size:13px; width:max-content}
+  .gutter{color:var(--faint); text-align:right; font-variant-numeric:tabular-nums; user-select:none}
+  .hex{display:flex; gap:0; white-space:nowrap}
+  .by{padding:1px 3.5px; border-radius:2px; cursor:default; transition:background .12s, box-shadow .12s}
+  .ascii{color:var(--faint); white-space:pre}
+  .ac{padding:1px 0; border-radius:2px}
+  .gap{grid-column:1 / -1; color:var(--faint); font-size:12px; padding:5px 0 5px 2px;
+    font-family:Consolas,ui-monospace,monospace}
+  .gap::before{content:"⋯  "}
+
+  /* field colors */
+  .f-blue  {color:var(--blue);   background:color-mix(in srgb, var(--blue)  13%, transparent)}
+  .f-violet{color:var(--violet); background:color-mix(in srgb, var(--violet)13%, transparent)}
+  .f-green {color:var(--green);  background:color-mix(in srgb, var(--green) 13%, transparent)}
+  .f-amber {color:var(--amber);  background:color-mix(in srgb, var(--amber) 14%, transparent)}
+  .f-coral {color:var(--coral);  background:color-mix(in srgb, var(--coral) 13%, transparent)}
+  .f-teal  {color:var(--teal);   background:color-mix(in srgb, var(--teal)  13%, transparent)}
+  .f-slate {color:var(--slate);  background:color-mix(in srgb, var(--slate) 12%, transparent)}
+  .alt.f-blue  {background:color-mix(in srgb, var(--blue)  25%, transparent)}
+  .alt.f-violet{background:color-mix(in srgb, var(--violet)25%, transparent)}
+  .alt.f-green {background:color-mix(in srgb, var(--green) 25%, transparent)}
+  .alt.f-amber {background:color-mix(in srgb, var(--amber) 26%, transparent)}
+  .alt.f-coral {background:color-mix(in srgb, var(--coral) 25%, transparent)}
+  .alt.f-teal  {background:color-mix(in srgb, var(--teal)  25%, transparent)}
+  .alt.f-slate {background:color-mix(in srgb, var(--slate) 24%, transparent)}
+  .by.hl, .ac.hl{background:color-mix(in srgb, currentColor 32%, transparent);
+    box-shadow:0 0 0 1px currentColor inset}
+  .plain{color:var(--mut)}
+
+  /* legend card */
+  .legend{flex:0 1 330px; min-width:280px; border:1px solid var(--line); background:var(--panel);
+    border-radius:4px; overflow:hidden}
+  .lg-head{padding:8px 14px; border-bottom:1px solid var(--line2); font-size:11px; color:var(--faint);
+    font-family:Consolas,ui-monospace,monospace; letter-spacing:.1em; text-transform:uppercase}
+  .lg-row{display:grid; grid-template-columns:11px 1fr auto; gap:10px; align-items:baseline;
+    padding:7px 14px; border-bottom:1px solid var(--line2); cursor:default; transition:background .12s}
+  .lg-row:last-child{border-bottom:0}
+  .lg-row.hl{background:var(--panel2)}
+  .lg-sw{width:11px; height:11px; border-radius:2px; align-self:center}
+  .lg-name{font-size:12.5px; font-weight:600}
+  .lg-sub{font-size:11.5px; color:var(--mut); font-family:"Segoe UI",system-ui,sans-serif; font-weight:400}
+  .lg-val{font-size:12.5px; color:var(--mut); font-family:Consolas,ui-monospace,monospace;
+    font-variant-numeric:tabular-nums; text-align:right}
+  .lg-val b{color:var(--ink); font-weight:600}
+
+  /* octal lanes */
+  .exploder{border:1px solid var(--line); background:var(--panel); border-radius:4px; padding:18px; margin-top:18px}
+  .exp-title{font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint);
+    font-family:Consolas,ui-monospace,monospace; margin-bottom:14px}
+  .exp-flow{display:flex; align-items:center; gap:12px; flex-wrap:wrap; font-family:Consolas,ui-monospace,monospace}
+  .bytebox{display:flex; gap:6px}
+  .bytebox b{border:1px solid var(--line); background:var(--panel2); padding:6px 10px; border-radius:3px;
+    font-size:15px; font-weight:600; color:var(--coral)}
+  .arrow{color:var(--faint); font-size:14px}
+  .u24{border:1px dashed var(--line); padding:6px 12px; border-radius:3px; font-size:14px; color:var(--ink)}
+  .u24 small{color:var(--faint)}
+  .lanes{display:grid; grid-template-columns:repeat(8,1fr); gap:6px; margin-top:16px; min-width:640px}
+  .laneswrap{overflow-x:auto}
+  .lane{border:1px solid var(--line); border-radius:3px; padding:8px 6px 7px; text-align:center; background:var(--panel2)}
+  .lane .bits{font-size:11px; color:var(--faint); letter-spacing:.12em}
+  .lane .code{font-size:21px; font-weight:700; margin:2px 0}
+  .lane .who{font-size:10.5px; color:var(--mut); font-family:"Segoe UI",system-ui,sans-serif; line-height:1.35}
+  .lane.c1 .code{color:var(--slate)} .lane.c7 .code{color:var(--coral)} .lane.c0 .code{color:var(--faint)}
+  .exp-note{font-size:12.5px; color:var(--mut); margin-top:12px; max-width:72ch}
+
+  /* code table + histogram */
+  .octduo{display:flex; gap:18px; flex-wrap:wrap; margin-top:18px; align-items:stretch}
+  table.codes{border-collapse:collapse; flex:1 1 480px; background:var(--panel);
+    border:1px solid var(--line); border-radius:4px; font-size:13px; overflow:hidden}
+  table.codes th{font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--faint);
+    font-family:Consolas,ui-monospace,monospace; text-align:left; padding:8px 14px; border-bottom:1px solid var(--line);
+    font-weight:600}
+  table.codes td{padding:7px 14px; border-bottom:1px solid var(--line2); vertical-align:top}
+  table.codes tr:last-child td{border-bottom:0}
+  td.cc{font-family:Consolas,ui-monospace,monospace; font-weight:700; width:30px}
+  td.cd{color:var(--mut)}
+  td.cd b{color:var(--ink); font-weight:600}
+  .hist{flex:1 1 300px; min-width:260px; border:1px solid var(--line); background:var(--panel); border-radius:4px; padding:14px 16px}
+  .hist h3{margin:0 0 4px; font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--faint)}
+  .hist .sub{font-size:12px; color:var(--mut); margin-bottom:12px}
+  .hrow{display:grid; grid-template-columns:18px 1fr 34px; gap:10px; align-items:center; margin:7px 0;
+    font-family:Consolas,ui-monospace,monospace; font-size:12px}
+  .hrow .hb{height:12px; border-radius:2px; background:color-mix(in srgb, currentColor 30%, transparent);
+    box-shadow:0 0 0 1px color-mix(in srgb, currentColor 45%, transparent) inset}
+  .hrow .hn{color:var(--mut); text-align:right; font-variant-numeric:tabular-nums}
+
+  /* clip anatomy strip */
+  .anatomy{margin:0 0 18px}
+
+  /* process steps */
+  .steps{list-style:none; margin:0; padding:0; border:1px solid var(--line); background:var(--panel);
+    border-radius:4px; counter-reset:step}
+  .steps li{counter-increment:step; display:flex; gap:16px; padding:13px 18px;
+    border-bottom:1px solid var(--line2); font-size:14px; color:var(--mut); line-height:1.55}
+  .steps li:last-child{border-bottom:0}
+  .steps li::before{content:counter(step,decimal-leading-zero);
+    font-family:"Cascadia Code",Consolas,ui-monospace,monospace;
+    color:var(--faint); font-size:12px; padding-top:3px; flex:0 0 auto}
+  .steps li b{color:var(--ink); font-weight:600}
+  .steps li code{font-size:12.5px; background:var(--panel2); border:1px solid var(--line2);
+    border-radius:3px; padding:1px 5px}
+
+  footer{margin-top:64px; padding-top:18px; border-top:1px solid var(--line); color:var(--faint);
+    font-size:12.5px; max-width:78ch}
+  .byline{margin-top:14px; padding-top:12px; border-top:1px dashed var(--line); color:var(--mut)}
+  .byline b{color:var(--ink)}
+  footer code{font-size:12px}
+  a{color:var(--blue); text-decoration:none} a:hover{text-decoration:underline}
+
+  .tag{display:inline-block; font-size:10.5px; letter-spacing:.08em; padding:1px 7px; border-radius:2px;
+    border:1px solid var(--line); color:var(--mut); vertical-align:2px; margin-left:8px}
+
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important} }
+  @media (max-width:720px){ .wrap{padding:28px 14px 60px} h1{font-size:24px} }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Pokémon X/Y · ORAS &nbsp;//&nbsp; GF1Motion skeletal animation</div>
+  <h1>.PB Byte Atlas <span class="dim">— every region of an animation file, highlighted</span></h1>
+  <div class="filechips">
+    <span class="chip">file <b>dec_0008.PB</b></span>
+    <span class="chip">pokemon <b>Bulbasaur</b></span>
+    <span class="chip">size <b>110,016 B</b></span>
+    <span class="chip">source <b>GARC a/0/0/8</b></span>
+  </div>
+  <p class="lede">Every byte shown below is <b>real data</b> read from the file above at the stated offsets — nothing is mocked up.
+  The format nests four layers: a <b>GFPackage</b> container → a <b>GF1MotionPack</b> → a <b>GF1MotBone</b> skeleton → <b>GF1Motion</b> clips.
+  Hover any legend row or any colored byte to light up its field. All integers are little-endian.</p>
+</header>
+
+<!-- ══════════════ FILE MAP ══════════════ -->
+<section>
+  <div class="sechead"><span class="lnum">MAP</span><h2>Where everything lives</h2><span class="at">0x00000 – 0x1ADC0</span></div>
+  <div class="map">
+    <p class="maplabel">Whole file · GFPackage · 74 entries</p>
+    <div class="bar" id="bar-file"></div>
+    <div class="baraux">
+      <p class="maplabel">Entry 0 · GF1MotionPack · 82,264 B · offsets below are relative to 0x130</p>
+      <div class="bar" id="bar-mp"></div>
+    </div>
+    <div class="maplegend" id="map-legend"></div>
+    <p class="scale-note">Segment widths proportional; tiny regions padded to stay visible. 12 of 28 clip slots are non-empty in this file.</p>
+  </div>
+</section>
+
+<!-- ══════════════ LAYER 1 ══════════════ -->
+<section>
+  <div class="sechead"><span class="lnum">LAYER 1</span><h2>GFPackage container</h2><span class="at">abs 0x0000</span></div>
+  <p class="note">Two-byte magic, entry count, then <code>count + 1</code> absolute offsets — the extra final offset is the file size,
+  so entry <i>i</i> always spans <code>offset[i] … offset[i+1]</code> and zero-length entries are legal.
+  Entry 0 is the motion pack; entry 1 is bounding-box data; entries 2+ are BCH material/visibility animations.</p>
+  <div class="duo">
+    <div class="hexcard">
+      <div class="hexhead"><span>offset</span><span style="margin-left:96px">00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F</span></div>
+      <div class="hexwrap"><div class="hexgrid" id="hx-pkg"></div></div>
+    </div>
+    <div class="legend"><div class="lg-head">decoded fields</div><div id="lg-pkg"></div></div>
+  </div>
+</section>
+
+<!-- ══════════════ LAYER 2 ══════════════ -->
+<section>
+  <div class="sechead"><span class="lnum">LAYER 2</span><h2>GF1MotionPack header</h2><span class="at">pack+0x000 · abs 0x130</span></div>
+  <p class="note">A slot count, then one offset per slot — <b>relative to the pack start</b>. Slot 0 is the skeleton; slots 1–28 are
+  animation clips keyed to fixed roles (idle, attack, faint …). An offset of <code>0</code> means the slot is empty.
+  Immediately after the table sits the pack's total size, which must be recomputed whenever a clip changes length.</p>
+  <div class="duo">
+    <div class="hexcard">
+      <div class="hexhead"><span>pack+</span><span style="margin-left:110px">00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F</span></div>
+      <div class="hexwrap"><div class="hexgrid" id="hx-mp"></div></div>
+    </div>
+    <div class="legend"><div class="lg-head">decoded fields</div><div id="lg-mp"></div></div>
+  </div>
+</section>
+
+<!-- ══════════════ LAYER 3 ══════════════ -->
+<section>
+  <div class="sechead"><span class="lnum">LAYER 3</span><h2>GF1MotBone skeleton</h2><span class="at">pack+0x07C</span></div>
+  <p class="note">Bone count, per-bone records (parent / flags / child-count), null-terminated names, 4-byte alignment padding,
+  then a 28-byte rest pose per bone (translation + quaternion). Bone 0 is an implicit <code>Origin</code> root with no record or name —
+  only a rest pose. Clips never store bone names: channels bind to bones <b>by index</b>, so bone order is sacred.</p>
+  <div class="duo">
+    <div class="hexcard">
+      <div class="hexhead"><span>pack+</span><span style="margin-left:110px">00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F</span></div>
+      <div class="hexwrap"><div class="hexgrid" id="hx-sk"></div></div>
+    </div>
+    <div class="legend"><div class="lg-head">decoded fields</div><div id="lg-sk"></div></div>
+  </div>
+</section>
+
+<!-- ══════════════ LAYER 4 ══════════════ -->
+<section>
+  <div class="sechead"><span class="lnum">LAYER 4</span><h2>GF1Motion clip — the interesting part</h2><span class="at">pack+0x91C · clip 1 · idle</span></div>
+  <p class="note">Each clip animates 9 channels per bone (T<sub>XYZ</sub>, R<sub>XYZ</sub>, S<sub>XYZ</sub>; rotations are Euler XYZ in radians)
+  and packs them in four sections: <b>header → octal stream → keyframe index tables → float data</b>.
+  Clip 1 here: <code>42</code> frames, 42 animated bones, 3,656 bytes total.</p>
+
+  <div class="anatomy map">
+    <p class="maplabel">Clip 1 anatomy · pack+0x91C … 0x1764 · 3,656 B</p>
+    <div class="bar" id="bar-clip"></div>
+    <div class="maplegend" id="clip-legend"></div>
+  </div>
+
+  <h3 style="font-size:14px;margin:26px 0 6px">4.1 &nbsp;Header + octal stream <span class="tag">3-bit codes, 8 per 3 bytes</span></h3>
+  <p class="note">After a 4-byte header, a stream of 3-bit “octal” codes assigns a storage strategy to every channel.
+  Walking bones in skeleton order, each group of 3 channels (T, R, S) is either skipped with a single <code>1</code>,
+  or expanded into 3 per-channel codes. The stream opens with two dummy <code>0</code> codes.</p>
+  <div class="duo">
+    <div class="hexcard">
+      <div class="hexhead"><span>pack+</span><span style="margin-left:110px">00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F</span></div>
+      <div class="hexwrap"><div class="hexgrid" id="hx-ch"></div></div>
+    </div>
+    <div class="legend"><div class="lg-head">decoded fields</div><div id="lg-ch"></div></div>
+  </div>
+
+  <div class="exploder">
+    <div class="exp-title">Unpacking one 3-byte group &nbsp;·&nbsp; pack+0x920</div>
+    <div class="exp-flow">
+      <span class="bytebox"><b>40</b><b>92</b><b>FF</b></span>
+      <span class="arrow">→ little-endian 24-bit →</span>
+      <span class="u24">0xFF9240 <small>= 111111111001001001000000₂</small></span>
+      <span class="arrow">→ eight 3-bit codes, low bits first →</span>
+    </div>
+    <div class="laneswrap"><div class="lanes">
+      <div class="lane c0"><div class="bits">000</div><div class="code">0</div><div class="who">dummy</div></div>
+      <div class="lane c0"><div class="bits">000</div><div class="code">0</div><div class="who">dummy</div></div>
+      <div class="lane c1"><div class="bits">001</div><div class="code">1</div><div class="who">Origin · T<br>skip group</div></div>
+      <div class="lane c1"><div class="bits">001</div><div class="code">1</div><div class="who">Origin · R<br>skip group</div></div>
+      <div class="lane c1"><div class="bits">001</div><div class="code">1</div><div class="who">Origin · S<br>skip group</div></div>
+      <div class="lane c7"><div class="bits">111</div><div class="code">7</div><div class="who">Waist · TX<br>hermite keys</div></div>
+      <div class="lane c7"><div class="bits">111</div><div class="code">7</div><div class="who">Waist · TY<br>hermite keys</div></div>
+      <div class="lane c7"><div class="bits">111</div><div class="code">7</div><div class="who">Waist · TZ<br>hermite keys</div></div>
+    </div></div>
+    <p class="exp-note">The very first group of this clip already tells a story: the <b>Origin</b> bone is completely
+    unanimated (three skips), and <b>Waist</b> — the root of the visible body — gets fully keyframed hermite translation.</p>
+  </div>
+
+  <div class="octduo">
+    <table class="codes">
+      <tr><th style="width:30px">code</th><th>meaning</th><th>data consumed</th></tr>
+      <tr><td class="cc" style="color:var(--faint)">0</td><td class="cd">constant <b>0.0</b></td><td class="cd">—</td></tr>
+      <tr><td class="cc" style="color:var(--slate)">1</td><td class="cd"><b>skip 3 channels</b> (group level only)</td><td class="cd">—</td></tr>
+      <tr><td class="cc" style="color:var(--teal)">2</td><td class="cd">constant <b>+π/2</b></td><td class="cd">—</td></tr>
+      <tr><td class="cc" style="color:var(--teal)">3</td><td class="cd">constant <b>π</b></td><td class="cd">—</td></tr>
+      <tr><td class="cc" style="color:var(--teal)">4</td><td class="cd">constant <b>−π/2</b></td><td class="cd">—</td></tr>
+      <tr><td class="cc" style="color:var(--amber)">5</td><td class="cd">constant, custom value</td><td class="cd">1 float</td></tr>
+      <tr><td class="cc" style="color:var(--green)">6</td><td class="cd">keyframed · <b>linear</b></td><td class="cd">1 kf table + 1 float / key</td></tr>
+      <tr><td class="cc" style="color:var(--coral)">7</td><td class="cd">keyframed · <b>hermite</b></td><td class="cd">1 kf table + 2 floats / key</td></tr>
+    </table>
+    <div class="hist">
+      <h3>Code usage · clip 1</h3>
+      <div class="sub">278 codes (incl. 2 dummies)</div>
+      <div id="histrows"></div>
+    </div>
+  </div>
+
+  <h3 style="font-size:14px;margin:30px 0 6px">4.2 &nbsp;Keyframe index tables <span class="tag">one per code-6/7 channel, in stream order</span></h3>
+  <p class="note">Each table is a count of <b>interior</b> keyframes followed by their frame numbers — frames <code>0</code> and
+  <code>frame_count</code> are implicit, so every keyframed channel has <code>N + 2</code> keys. Entries are <code>u8</code> here
+  because <code>frame_count ≤ 255</code>; longer clips switch to <code>u16</code> (2-byte aligned). Zero-padded to 4 bytes at the end.</p>
+  <div class="duo">
+    <div class="hexcard">
+      <div class="hexhead"><span>pack+</span><span style="margin-left:110px">00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F</span></div>
+      <div class="hexwrap"><div class="hexgrid" id="hx-kf"></div></div>
+    </div>
+    <div class="legend"><div class="lg-head">decoded tables</div><div id="lg-kf"></div></div>
+  </div>
+
+  <h3 style="font-size:14px;margin:30px 0 6px">4.3 &nbsp;Float data <span class="tag">IEEE-754 · consumed in stream order</span></h3>
+  <p class="note">Code-5 channels take one float; code-6 one per key; code-7 a <b>(value, slope)</b> pair per key, where the slope is the
+  hermite tangent. Below: the first channel’s data — <b>Waist · TX</b>, keys at frames 0 / 21 / 42 — followed by the start of Waist · TY.
+  Note TY’s first value, <code>19.7167</code>, sitting right at Waist’s rest-pose height of <code>19.786</code>.</p>
+  <div class="duo">
+    <div class="hexcard">
+      <div class="hexhead"><span>pack+</span><span style="margin-left:110px">00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F</span></div>
+      <div class="hexwrap"><div class="hexgrid" id="hx-fl"></div></div>
+    </div>
+    <div class="legend"><div class="lg-head">decoded floats</div><div id="lg-fl"></div></div>
+  </div>
+</section>
+
+<!-- ══════════════ PROCESS ══════════════ -->
+<section>
+  <div class="sechead"><span class="lnum">PROCESS</span><h2>From compressed archive to custom animation</h2><span class="at">how this was actually done</span></div>
+  <p class="note">The atlas above is the tidy end product. Getting there was not tidy — this is the path,
+  including the steps that existed purely to find out whether anything worked at all.</p>
+  <!-- PERSONALIZE: these milestones are accurate to the project, but add your own detail —
+       what broke, what surprised you, how long each stage really took. -->
+  <ol class="steps">
+    <li><span><b>Extract the data.</b> Pulled GARC <code>a/0/0/8</code> out of the X/Y ROM filesystem and
+      LZ11-decompressed it into per-Pokémon <code>.pb</code>/<code>.pk</code> files — opaque binary, no public spec.</span></li>
+    <li><span><b>Study prior art.</b> SPICA (an open-source 3DS model viewer) could <i>render</i> these
+      animations, so its parser source became the Rosetta stone: four C# files describing what to read, but not why.</span></li>
+    <li><span><b>Build the tool.</b> <code>anim.py</code> — a zero-dependency Python decoder <i>and</i> encoder.
+      Writing the encoder is what forces real understanding: a renderer can skip fields it doesn't care about; a
+      round-tripper can't.</span></li>
+    <li><span><b>Prove the pipeline before trusting it.</b> The <code>tpose</code> test: patch in a clip where every
+      bone is at identity. If the Pokémon stands in a rigid T-pose in game, the whole chain — encode, compress,
+      repack, LayeredFS — is verified in one glance.</span></li>
+    <li><span><b>Verify losslessness.</b> Export → patch → export reproduces identical JSON on both modified and
+      pristine game files; the rebuilt binary matches the original except low-order float bits from JSON rounding.</span></li>
+    <li><span><b>Ship a real mod.</b> Custom Delphox animation work authored in Blender and deployed to console
+      hardware via Luma3DS LayeredFS — the point of all of the above.</span></li>
+    <li><span><b>Document it.</b> The prose spec (<code>ANIM_FORMAT.md</code>), an annotated JSON template, and
+      this atlas — so the next person starts from a map instead of a hex dump.</span></li>
+  </ol>
+</section>
+
+<footer>
+  Format reverse-engineered from SPICA (<code>GF1Motion.cs</code>, <code>GF1MotBone.cs</code>, <code>GF1MotionPack.cs</code>, <code>GFPackage.cs</code>)
+  and verified by byte-exact round-trips with <code>anim.py</code> — export → patch → export reproduces identical JSON, with only
+  low-order float bits differing from 7-decimal export rounding. Companion prose spec: <code>ANIM_FORMAT.md</code>.
+  Pipeline: GARC <code>a/0/0/8</code> → LZ11 decompress → edit → LZ11 compress → repack → Luma3DS LayeredFS.
+  <div class="byline">
+    <!-- PERSONALIZE: swap in your GitHub handle/URL. -->
+    Reverse-engineering, hardware testing, and direction by <b>Ben Kudarauskas</b> ·
+    <a href="https://github.com/YOUR-USERNAME">github.com/YOUR-USERNAME</a><br>
+    Tooling and documentation built with AI assistance (Claude) and verified against real game files.
+    Byte excerpts shown remain © Nintendo / Game Freak / Creatures Inc., reproduced solely for
+    interoperability documentation — no game files are distributed.
+  </div>
+</footer>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+const $ = id => document.getElementById(id);
+const HUE = {blue:"--blue",violet:"--violet",green:"--green",amber:"--amber",coral:"--coral",teal:"--teal",slate:"--slate"};
+
+/* ── field-hover sync ── */
+function wire(){
+  document.querySelectorAll("[data-f]").forEach(el=>{
+    el.addEventListener("mouseenter",()=>mark(el.dataset.f,true));
+    el.addEventListener("mouseleave",()=>mark(el.dataset.f,false));
+  });
+}
+function mark(f,on){
+  document.querySelectorAll('[data-f="'+f+'"]').forEach(el=>el.classList.toggle("hl",on));
+}
+
+/* ── hex panel renderer ──
+   panel: {el, segs:[{base,hex,note?}], fields:[{id,cls,from,to,stride?,tip}]} */
+function renderHex(p){
+  const grid = $(p.el);
+  const fieldAt = o=>{
+    for(const f of p.fields) if(o>=f.from && o<f.to) return f;
+    return null;
+  };
+  p.segs.forEach(seg=>{
+    if(seg.note!==undefined){
+      const g=document.createElement("div"); g.className="gap"; g.textContent=seg.note;
+      grid.appendChild(g); return;
+    }
+    const bytes=[];
+    for(let i=0;i<seg.hex.length;i+=2) bytes.push(parseInt(seg.hex.substr(i,2),16));
+    for(let r=0;r<bytes.length;r+=16){
+      const off=seg.base+r;
+      const gut=document.createElement("div"); gut.className="gutter";
+      gut.textContent="0x"+off.toString(16).toUpperCase().padStart(4,"0");
+      const hx=document.createElement("div"); hx.className="hex";
+      const as=document.createElement("div"); as.className="ascii";
+      for(let c=0;c<16 && r+c<bytes.length;c++){
+        const o=seg.base+r+c, b=bytes[r+c], f=fieldAt(o);
+        const bel=document.createElement("span");
+        bel.className="by "+(f?("f-"+f.cls):"plain");
+        if(f&&f.stride&&(Math.floor((o-f.from)/f.stride)%2===1)) bel.classList.add("alt");
+        bel.textContent=b.toString(16).toUpperCase().padStart(2,"0");
+        if(f){bel.dataset.f=f.id; if(f.tip)bel.title=f.tip;}
+        hx.appendChild(bel);
+        const ael=document.createElement("span");
+        ael.className="ac "+(f?("f-"+f.cls):"plain");
+        if(f)ael.dataset.f=f.id;
+        ael.textContent=(b>=32&&b<127)?String.fromCharCode(b):"·";
+        as.appendChild(ael);
+      }
+      grid.appendChild(gut); grid.appendChild(hx); grid.appendChild(as);
+    }
+  });
+}
+/* legend renderer: rows [{id,cls,name,sub,val}] */
+function renderLegend(el,rows){
+  const host=$(el);
+  rows.forEach(r=>{
+    const d=document.createElement("div"); d.className="lg-row"; d.dataset.f=r.id;
+    d.innerHTML='<span class="lg-sw" style="background:color-mix(in srgb, var('+HUE[r.cls]+') 55%, transparent);box-shadow:0 0 0 1px var('+HUE[r.cls]+') inset"></span>'+
+      '<span class="lg-name">'+r.name+(r.sub?' <span class="lg-sub">'+r.sub+"</span>":"")+"</span>"+
+      '<span class="lg-val">'+r.val+"</span>";
+    host.appendChild(d);
+  });
+}
+
+/* ══ LAYER 1 ══ */
+renderHex({el:"hx-pkg",
+  segs:[
+    {base:0x000, hex:"50424a00300100008842010038440100b8470100384b0100384b0100b84e010038520100b8550100b8550100b8550100"},
+    {note:"64 more table entries … table ends at 0x12F; entry data begins at 0x130"}
+  ],
+  fields:[
+    {id:"p-magic",cls:"coral", from:0,to:2, tip:'magic "PB"'},
+    {id:"p-count",cls:"amber", from:2,to:4, tip:"entry count = 74"},
+    {id:"p-e0",   cls:"violet",from:4,to:8, tip:"offset[0] = 0x130 → GF1MotionPack"},
+    {id:"p-e1",   cls:"blue",  from:8,to:12,tip:"offset[1] = 0x14288 → bounding boxes"},
+    {id:"p-tbl",  cls:"teal",  from:12,to:48, stride:4, tip:"offset table (absolute)"}
+  ]});
+renderLegend("lg-pkg",[
+  {id:"p-magic",cls:"coral", name:"magic", sub:"char[2]", val:'<b>"PB"</b>'},
+  {id:"p-count",cls:"amber", name:"count", sub:"u16", val:"<b>74</b> entries"},
+  {id:"p-e0",   cls:"violet",name:"offset[0]", sub:"u32 · MotionPack", val:"<b>0x130</b>"},
+  {id:"p-e1",   cls:"blue",  name:"offset[1]", sub:"u32 · bbox entry", val:"<b>0x14288</b>"},
+  {id:"p-tbl",  cls:"teal",  name:"offset[2…74]", sub:"u32 × 73 · BCH + end", val:"last = <b>0x1ADC0</b>"}
+]);
+
+/* ══ LAYER 2 ══ */
+renderHex({el:"hx-mp",
+  segs:[
+    {base:0x00, hex:"1d0000007c0000001c0900006417000000000000d83a00004c4d000034570000"},
+    {note:"offsets for slots 7 … 25 (mixed clips and empty 0x00000000 slots)"},
+    {base:0x6C, hex:"d0400100000000000000000058410100"}
+  ],
+  fields:[
+    {id:"m-ac",  cls:"amber", from:0,to:4, tip:"slot count = 29 (1 skeleton + 28 clips)"},
+    {id:"m-skel",cls:"green", from:4,to:8, tip:"offset[0] = 0x7C → skeleton"},
+    {id:"m-c1",  cls:"violet",from:8,to:12, tip:"offset[1] = 0x91C → clip 1 (idle)"},
+    {id:"m-c2",  cls:"blue",  from:12,to:16, tip:"offset[2] = 0x1764 → clip 2"},
+    {id:"m-emp", cls:"slate", from:16,to:20, tip:"offset[3] = 0 → EMPTY SLOT"},
+    {id:"m-more",cls:"teal",  from:20,to:32, stride:4, tip:"offsets[4..6]"},
+    {id:"m-c26", cls:"teal",  from:0x6C,to:0x70, tip:"offset[26] = 0x140D0 → last clip"},
+    {id:"m-z",   cls:"slate", from:0x70,to:0x78, stride:4, tip:"offsets[27..28] = 0 → empty"},
+    {id:"m-size",cls:"coral", from:0x78,to:0x7C, tip:"total pack size = 82,264 — recompute when patching!"}
+  ]});
+renderLegend("lg-mp",[
+  {id:"m-ac",  cls:"amber", name:"slot count", sub:"u32", val:"<b>29</b>"},
+  {id:"m-skel",cls:"green", name:"offset[0]", sub:"u32 · skeleton", val:"<b>0x7C</b>"},
+  {id:"m-c1",  cls:"violet",name:"offset[1]", sub:"u32 · clip 1 · idle", val:"<b>0x91C</b>"},
+  {id:"m-c2",  cls:"blue",  name:"offset[2]", sub:"u32 · clip 2", val:"<b>0x1764</b>"},
+  {id:"m-emp", cls:"slate", name:"offset[3]", sub:"u32 · empty slot", val:"<b>0</b>"},
+  {id:"m-more",cls:"teal",  name:"offset[4…26]", sub:"u32 · clips 4–26", val:"12 non-empty"},
+  {id:"m-z",   cls:"slate", name:"offset[27…28]", sub:"u32 · empty", val:"<b>0</b>"},
+  {id:"m-size",cls:"coral", name:"pack size", sub:"u32 · must update", val:"<b>82,264</b> B"}
+]);
+
+/* ══ LAYER 3 ══ */
+renderHex({el:"hx-sk",
+  segs:[
+    {base:0x7C, hex:"32000000310100" + "0b020005030004" + "0400"},
+    {note:"records for bones 6 … 49, then names begin at pack+0x111"},
+    {base:0x111, hex:"57616973740048697073004c48697073004c546869676800"},
+    {note:"44 more names … zero-pad to pack+0x2A8, rest poses follow (28 B × 50 bones); bone 1 “Waist” at pack+0x2C4:"},
+    {base:0x2C4, hex:"19cc9b35234a9e411ff434c19e0ddd3e6a0dddbe135c0f3ff05b0f3f"}
+  ],
+  fields:[
+    {id:"s-bc",  cls:"coral", from:0x7C,to:0x7D, tip:"bone count = 0x32 = 50 (incl. implicit Origin)"},
+    {id:"s-fl",  cls:"amber", from:0x7D,to:0x7E, tip:"root flag byte"},
+    {id:"s-rec", cls:"blue",  from:0x7E,to:0x8C, stride:3, tip:"bone record: parent, flags, child-count (3 B each)"},
+    {id:"s-nm",  cls:"green", from:0x111,to:0x129, tip:"null-terminated ASCII names, bones 1…49"},
+    {id:"s-t",   cls:"green", from:0x2C4,to:0x2D0, stride:4, tip:"rest translation: tx=0.000001, ty=19.786, tz=-11.310"},
+    {id:"s-q",   cls:"violet",from:0x2D0,to:0x2E0, stride:4, tip:"rest quaternion (x,y,z,w): 0.432, -0.432, 0.560, 0.560"}
+  ]});
+renderLegend("lg-sk",[
+  {id:"s-bc", cls:"coral", name:"bone count", sub:"u8 · incl. Origin", val:"<b>50</b>"},
+  {id:"s-fl", cls:"amber", name:"root flag", sub:"u8", val:"<b>0</b>"},
+  {id:"s-rec",cls:"blue",  name:"bone records", sub:"u8×3 per bone: parent · flags · childs", val:"Waist: <b>0,0,49</b>"},
+  {id:"s-nm", cls:"green", name:"bone names", sub:"cstring × 49", val:"<b>Waist, Hips…</b>"},
+  {id:"s-t",  cls:"green", name:"rest translation", sub:"f32 × 3 · Waist", val:"y = <b>19.786</b>"},
+  {id:"s-q",  cls:"violet",name:"rest rotation", sub:"f32 × 4 · quat xyzw", val:"<b>.43 −.43 .56 .56</b>"}
+]);
+
+/* ══ LAYER 4 · header + octals ══ */
+renderHex({el:"hx-ch",
+  segs:[
+    {base:0x91C, hex:"16012a004092ffaf92774992ff098ee4"},
+    {note:"93 more octal-stream bytes … stream ends at pack+0x989"}
+  ],
+  fields:[
+    {id:"c-oc", cls:"amber", from:0x91C,to:0x91E, tip:"octal count = 0x116 = 278"},
+    {id:"c-fc", cls:"coral", from:0x91E,to:0x920, tip:"frame count = 0x2A = 42"},
+    {id:"c-g0", cls:"violet",from:0x920,to:0x923, tip:"group 0 → codes 0,0,1,1,1,7,7,7 (unpacked below)"},
+    {id:"c-gs", cls:"blue",  from:0x923,to:0x92C, stride:3, tip:"3-byte groups, 8 codes each"}
+  ]});
+renderLegend("lg-ch",[
+  {id:"c-oc",cls:"amber", name:"octal count", sub:"u16", val:"<b>278</b> codes"},
+  {id:"c-fc",cls:"coral", name:"frame count", sub:"u16 · clip spans 0…42", val:"<b>42</b>"},
+  {id:"c-g0",cls:"violet",name:"group 0", sub:"3 B → 8 codes", val:"<b>0 0 1 1 1 7 7 7</b>"},
+  {id:"c-gs",cls:"blue",  name:"groups 1…34", sub:"3 B each", val:"105 B total"}
+]);
+
+/* histogram */
+(function(){
+  const data=[["1",87,"slate"],["5",112,"amber"],["7",63,"coral"],["0",13,"slate"],["3",2,"teal"],["2",1,"teal"],["4",0,"teal"],["6",0,"green"]];
+  const max=Math.max(...data.map(d=>d[1]));
+  const host=$("histrows");
+  data.forEach(([c,n,cls])=>{
+    const r=document.createElement("div"); r.className="hrow";
+    r.innerHTML="<span style='color:var("+HUE[cls]+");font-weight:700'>"+c+"</span>"+
+      "<span class='hb' style='color:var("+HUE[cls]+");width:"+Math.max(n/max*100,1.5)+"%'></span>"+
+      "<span class='hn'>"+n+"</span>";
+    host.appendChild(r);
+  });
+})();
+
+/* ══ LAYER 4 · keyframe tables ══ */
+renderHex({el:"hx-kf",
+  segs:[
+    {base:0x989, hex:"0115030a151f0405101a2501150115000604080c121c23030817260707080b0d"},
+    {note:"52 more table entries … tables end at pack+0xAA9, then 3 pad bytes 00 00 00"}
+  ],
+  fields:[
+    {id:"k-t0c",cls:"amber",from:0x989,to:0x98A,tip:"N=1 interior key"},
+    {id:"k-t0f",cls:"teal", from:0x98A,to:0x98B,tip:"frame 21 → keys at 0,21,42"},
+    {id:"k-t1c",cls:"amber",from:0x98B,to:0x98C,tip:"N=3"},
+    {id:"k-t1f",cls:"teal", from:0x98C,to:0x98F,tip:"frames 10,21,31 → keys 0,10,21,31,42"},
+    {id:"k-t2c",cls:"amber",from:0x98F,to:0x990,tip:"N=4"},
+    {id:"k-t2f",cls:"teal", from:0x990,to:0x994,tip:"frames 5,16,26,37"},
+    {id:"k-t3c",cls:"amber",from:0x994,to:0x995,tip:"N=1"},
+    {id:"k-t3f",cls:"teal", from:0x995,to:0x996,tip:"frame 21"},
+    {id:"k-t4c",cls:"amber",from:0x996,to:0x997,tip:"N=1"},
+    {id:"k-t4f",cls:"teal", from:0x997,to:0x998,tip:"frame 21"},
+    {id:"k-t5c",cls:"amber",from:0x998,to:0x999,tip:"N=0 → keys only at 0 and 42"},
+    {id:"k-t6c",cls:"amber",from:0x999,to:0x99A,tip:"N=6"},
+    {id:"k-t6f",cls:"teal", from:0x99A,to:0x9A0,tip:"frames 4,8,12,18,28,35"},
+    {id:"k-t7c",cls:"amber",from:0x9A0,to:0x9A1,tip:"N=3"},
+    {id:"k-t7f",cls:"teal", from:0x9A1,to:0x9A4,tip:"frames 8,23,38"},
+    {id:"k-t8c",cls:"amber",from:0x9A4,to:0x9A5,tip:"N=7"},
+    {id:"k-t8f",cls:"teal", from:0x9A5,to:0x9A9,tip:"frames 7,8,11,13 …"}
+  ]});
+renderLegend("lg-kf",[
+  {id:"k-t0c",cls:"amber",name:"table 0 · count",sub:"u8 · Waist TX",val:"N = <b>1</b>"},
+  {id:"k-t0f",cls:"teal", name:"table 0 · frames",sub:"+ implicit 0 & 42",val:"<b>[21]</b>"},
+  {id:"k-t1c",cls:"amber",name:"table 1 · count",sub:"u8 · Waist TY",val:"N = <b>3</b>"},
+  {id:"k-t1f",cls:"teal", name:"table 1 · frames",sub:"",val:"<b>[10, 21, 31]</b>"},
+  {id:"k-t2c",cls:"amber",name:"table 2 · count",sub:"u8 · Waist TZ",val:"N = <b>4</b>"},
+  {id:"k-t2f",cls:"teal", name:"table 2 · frames",sub:"",val:"<b>[5, 16, 26, 37]</b>"},
+  {id:"k-t5c",cls:"amber",name:"table 5 · count",sub:"N=0 → endpoint keys only",val:"<b>[0, 42]</b>"},
+  {id:"k-t8f",cls:"teal", name:"…63 tables total",sub:"one per code-6/7 octal",val:"288 B"}
+]);
+
+/* ══ LAYER 4 · floats ══ */
+renderHex({el:"hx-fl",
+  segs:[
+    {base:0xAAC, hex:"d9ffffbebd6bb73e7eabfd3e00000000d9ffffbe63584abebabb9d41ff42bcbe"},
+    {note:"3,224 more float bytes … clip ends at pack+0x1764; clip 2 starts immediately"}
+  ],
+  fields:[
+    {id:"f-v0",cls:"coral", from:0xAAC,to:0xAB0,tip:"Waist TX · value @ frame 0 = -0.5"},
+    {id:"f-s0",cls:"violet",from:0xAB0,to:0xAB4,tip:"slope @ 0 = 0.3582"},
+    {id:"f-v1",cls:"coral", from:0xAB4,to:0xAB8,tip:"value @ 21 = 0.4954"},
+    {id:"f-s1",cls:"violet",from:0xAB8,to:0xABC,tip:"slope @ 21 = 0.0"},
+    {id:"f-v2",cls:"coral", from:0xABC,to:0xAC0,tip:"value @ 42 = -0.5 (loops back to frame-0 value)"},
+    {id:"f-s2",cls:"violet",from:0xAC0,to:0xAC4,tip:"slope @ 42 = -0.1976"},
+    {id:"f-ty",cls:"green", from:0xAC4,to:0xACC,stride:4,tip:"next channel: Waist TY begins · value @ 0 = 19.7167"}
+  ]});
+renderLegend("lg-fl",[
+  {id:"f-v0",cls:"coral", name:"value @ f0",  sub:"f32 · Waist TX", val:"<b>−0.5000</b>"},
+  {id:"f-s0",cls:"violet",name:"slope @ f0",  sub:"hermite tangent", val:"<b>0.3582</b>"},
+  {id:"f-v1",cls:"coral", name:"value @ f21", sub:"", val:"<b>0.4954</b>"},
+  {id:"f-s1",cls:"violet",name:"slope @ f21", sub:"", val:"<b>0.0000</b>"},
+  {id:"f-v2",cls:"coral", name:"value @ f42", sub:"= f0 → seamless loop", val:"<b>−0.5000</b>"},
+  {id:"f-s2",cls:"violet",name:"slope @ f42", sub:"", val:"<b>−0.1976</b>"},
+  {id:"f-ty",cls:"green", name:"Waist TY begins", sub:"value ≈ rest height 19.786", val:"<b>19.7167…</b>"}
+]);
+
+/* ══ file map bars ══ */
+function bar(el, total, segs, legendEl){
+  const host=$(el); let leg = legendEl?$(legendEl):null;
+  segs.forEach(s=>{
+    const d=document.createElement("div"); d.className="seg";
+    d.style.flexGrow = Math.max(s.size/total*1000, 8);
+    d.style.background = "color-mix(in srgb, var("+HUE[s.cls]+") "+(s.dim?22:58)+"%, var(--panel))";
+    d.title = s.name+" · "+s.size.toLocaleString()+" B";
+    if(s.label){const sp=document.createElement("span"); sp.textContent=s.label;
+      sp.style.color="var(--ink)"; d.appendChild(sp);}
+    host.appendChild(d);
+    if(leg && s.name){
+      const li=document.createElement("span");
+      li.innerHTML="<i style='background:color-mix(in srgb, var("+HUE[s.cls]+") 58%, var(--panel))'></i>"+s.name+" · "+s.size.toLocaleString()+" B";
+      leg.appendChild(li);
+    }
+  });
+}
+bar("bar-file",110016,[
+  {name:"header + offset table", size:304, cls:"coral"},
+  {name:"GF1MotionPack (entry 0)", size:82264, cls:"violet", label:"GF1MotionPack — all skeletal animation"},
+  {name:"bounding boxes (entry 1)", size:432, cls:"amber"},
+  {name:"BCH material anims (entries 2–73)", size:27016, cls:"blue", label:"BCH"}
+],"map-legend");
+bar("bar-mp",82264,[
+  {name:"pack header + slot offsets", size:124, cls:"coral"},
+  {name:"skeleton + bounds", size:2208, cls:"green", label:"skeleton"},
+  {name:"clip 1 · idle", size:3656, cls:"violet", label:"clip 1"},
+  {name:"clips 2 … 26", size:76276, cls:"teal", label:"clips 2 … 26 (11 more)"}
+],null);
+bar("bar-clip",3656,[
+  {name:"header", size:4, cls:"amber"},
+  {name:"octal stream", size:105, cls:"violet", label:"octals"},
+  {name:"keyframe tables", size:288, cls:"teal", label:"kf tables"},
+  {name:"pad", size:3, cls:"slate"},
+  {name:"float data", size:3256, cls:"coral", label:"float data — values & hermite slopes"}
+],"clip-legend");
+
+wire();
+})();
+</script>
+
+</body>
+</html>
