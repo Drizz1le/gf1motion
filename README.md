@@ -21,7 +21,7 @@
 ---
 
 <p align="center">
-  #A byte-level atlas of the Pokémon X/Y & ORAS animation format that allows for custom animations
+  # Tools coming soon
 </p>
 
 <a id="how"></a>
