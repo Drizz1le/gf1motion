@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <strong>A byte-level atlas of the Pokémon X/Y & ORAS animation format.</strong>
+  <strong>A byte-level atlas of the Pokémon X/Y & ORAS animation format that allows for custom animations</strong>
 </p>
 
 <p align="center">
