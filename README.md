@@ -129,7 +129,8 @@ now fully writable, it's just a retargeting problem.
 - **garctool** — GARC extraction and rebuild.
 - **Citra** — 3DS emulation for testing.
 - Reverse engineering — **Ben Kudarauskas**
-  ([@drizz1le](https://github.com/drizz1le)). Documentation built with AI assistance
+  ([@drizz1le](https://github.com/drizz1le)).
+- Documentation site built with AI assistance
   (Claude)
 
 <a id="license"></a>
