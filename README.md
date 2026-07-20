@@ -45,7 +45,7 @@ The animation tool was build using Claude. I passed Claude the byte atlas, along
 <a id="proof-of-concept"></a>
 ## Proof of Concept
 
-Decoding a format convinces you. Re-encoding it convinces the game. To prove the format was
+To prove the format was
 fully solved, I exported Bulbasaur's idle clip to JSON and made one small edit: the frame-21
 key of **Waist · TranslationX**, from `0.4954` to `6.28318`. This is an 2π-unit displacement chosen to be
 impossible to miss.
