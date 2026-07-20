@@ -12,6 +12,7 @@
 
 <p align="center">
   <a href="#how">How</a> ·
+  <a href="#tool">Anim Tool</a> ·
   <a href="#proof-of-concept">Proof of Concept</a> ·
   <a href="#goal">Goal</a> ·
   <a href="#credits">Credits</a> ·
@@ -19,8 +20,6 @@
 </p>
 
 ---
-
-# Tools coming soon
 
 <a id="how"></a>
 ## How
@@ -38,10 +37,28 @@ The complete byte layout which shows the container, motion pack, skeleton, and t
 is documented region-by-region in the [interactive atlas](https://drizz1le.github.io/gf1motion),
 with every example drawn from real file bytes.
 
+<a id="tool"></a>
+## Animation Tool
+
+The animation tool was build using Claude. I passed Claude the byte atlas, along with a few other instuctuions and constaints and it generated `anim.py` which allows for decoding and re-encoding the animation to JSON. In the future, I want to write my own tool for this that also allows for animations to be imported from Blender, or from other animation formats. 
+
+### Usage
+
+`python anim.py info    <file.pb>`
+
+`python anim.py export  <file.pb> <out.json>  [--clip N]`
+
+`python anim.py inspect <file.pb>              [--clip N]`
+
+`python anim.py tpose   <exported.json> <out.json>`
+
+`python anim.py patch   <original.pb> <in.json> <out.pb>`
+
+
 <a id="proof-of-concept"></a>
 ## Proof of Concept
 
-Decoding a format convinces you. Re-encoding it convinces the game. To prove the format was
+To prove the format was
 fully solved, I exported Bulbasaur's idle clip to JSON and made one small edit: the frame-21
 key of **Waist · TranslationX**, from `0.4954` to `6.28318`. This is an 2π-unit displacement chosen to be
 impossible to miss.
@@ -129,7 +146,8 @@ now fully writable, it's just a retargeting problem.
 - **garctool** — GARC extraction and rebuild.
 - **Citra** — 3DS emulation for testing.
 - Reverse engineering — **Ben Kudarauskas**
-  ([@drizz1le](https://github.com/drizz1le)). Documentation built with AI assistance
+  ([@drizz1le](https://github.com/drizz1le)).
+- Documentation site built with AI assistance
   (Claude)
 
 <a id="license"></a>
