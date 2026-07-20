@@ -44,15 +44,15 @@ The animation tool was build using Claude. I passed Claude the byte atlas, along
 
 ### Usage
 
-`python anim.py info    <file.pb>`
+`python anim.py info <file.pb>`
 
-`python anim.py export  <file.pb> <out.json>  [--clip N]`
+`python anim.py export <file.pb> <out.json> [--clip N]`
 
-`python anim.py inspect <file.pb>              [--clip N]`
+`python anim.py inspect <file.pb> [--clip N]`
 
-`python anim.py tpose   <exported.json> <out.json>`
+`python anim.py tpose <exported.json> <out.json>`
 
-`python anim.py patch   <original.pb> <in.json> <out.pb>`
+`python anim.py patch <original.pb> <in.json> <out.pb>`
 
 
 <a id="proof-of-concept"></a>
