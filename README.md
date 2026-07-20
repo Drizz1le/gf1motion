@@ -42,6 +42,15 @@ with every example drawn from real file bytes.
 
 The animation tool was build using Claude. I passed Claude the byte atlas, along with a few other instuctuions and constaints and it generated `anim.py` which allows for decoding and re-encoding the animation to JSON. In the future, I want to write my own tool for this that also allows for animations to be imported from Blender, or from other animation formats. 
 
+### Usage
+`
+python anim.py info    <file.pb>
+python anim.py export  <file.pb> <out.json>  [--clip N]
+python anim.py inspect <file.pb>              [--clip N]
+python anim.py tpose   <exported.json> <out.json>
+python anim.py patch   <original.pb> <in.json> <out.pb>
+`
+
 <a id="proof-of-concept"></a>
 ## Proof of Concept
 
