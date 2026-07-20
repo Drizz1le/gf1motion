@@ -11,8 +11,8 @@
 </p>
 
 <p align="center">
-  <a href="#tool">Anim Tool</a> ·
   <a href="#how">How</a> ·
+  <a href="#tool">Anim Tool</a> ·
   <a href="#proof-of-concept">Proof of Concept</a> ·
   <a href="#goal">Goal</a> ·
   <a href="#credits">Credits</a> ·
@@ -20,11 +20,6 @@
 </p>
 
 ---
-
-<a id="tool"></a>
-## Animation Tool
-
-The animation tool was build using Claude. I passed Claude the byte atlas, along with a few other instuctuions and constaints and it generated `anim.py` which allows for decoding and re-encoding the animation to JSON. In the future, I want to write my own tool for this that also allows for animations to be imported from Blender, or from other animation formats. 
 
 <a id="how"></a>
 ## How
@@ -41,6 +36,11 @@ encoder, was the real work. The result is verified by byte-exact round-trips.
 The complete byte layout which shows the container, motion pack, skeleton, and the 3-bit channel encoding, 
 is documented region-by-region in the [interactive atlas](https://drizz1le.github.io/gf1motion),
 with every example drawn from real file bytes.
+
+<a id="tool"></a>
+## Animation Tool
+
+The animation tool was build using Claude. I passed Claude the byte atlas, along with a few other instuctuions and constaints and it generated `anim.py` which allows for decoding and re-encoding the animation to JSON. In the future, I want to write my own tool for this that also allows for animations to be imported from Blender, or from other animation formats. 
 
 <a id="proof-of-concept"></a>
 ## Proof of Concept
