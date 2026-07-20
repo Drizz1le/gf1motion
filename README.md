@@ -155,7 +155,7 @@ now fully writable, it's just a retargeting problem.
 
 [MIT](LICENSE) — covers the tooling and documentation in this repository.
 
-The small byte excerpts shown in the atlas are from Pokémon X/Y and remain
+The small byte excerpts shown in the atlas are from Pokémon OR/AS and remain
 © Nintendo / Game Freak / Creatures Inc., reproduced solely for interoperability documentation.
 **No game files or assets are distributed here** — extract them from your own legally obtained
 copy.
